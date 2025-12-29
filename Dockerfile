@@ -1,20 +1,36 @@
-# Use official Node.js LTS Alpine image
+# Stage 1: Build the app
+FROM node:20-alpine AS builder
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy package.json and package-lock.json first (for caching)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the source code
+COPY . .
+
+# Build the NestJS app
+RUN npm run build
+
+# Stage 2: Run the app
 FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files first (for caching dependencies)
-COPY package*.json ./
+# Copy package files and node_modules from builder
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 
-# Install only production dependencies
-RUN npm install --production
+# Copy built app (dist folder) from builder
+COPY --from=builder /app/dist ./dist
 
-# Copy the rest of the app
-COPY . .
-
-# Expose the port your app listens on
+# Expose the port your app runs on
 EXPOSE 3000
 
-# Start the application
+# Start the app
 CMD ["node", "dist/main.js"]
