@@ -39,6 +39,7 @@ async function bootstrap() {
     return this.toString();
   };
   //await app.listen(process.env.PORT ?? 3000);
-  await app.listen(process.env.PORT || 3000, '0.0.0.0');
+  //await app.listen(process.env.PORT || 3000, '0.0.0.0');
+  await app.listen(3000, '0.0.0.0');
 }
 bootstrap();
